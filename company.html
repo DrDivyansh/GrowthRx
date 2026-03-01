@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GrowthRx — Company Deep Dive</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="assets/style.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
 /* BREADCRUMB */
-.breadcrumb { padding:16px 48px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); }
+.breadcrumb { padding:16px 48px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; font-size:15px; color:var(--muted); }
 .breadcrumb a { color:var(--muted); text-decoration:none; }
 .breadcrumb a:hover { color:var(--text); }
 .breadcrumb span { color:var(--border2); }
@@ -19,36 +19,36 @@
 /* SIDEBAR */
 .sidebar { border-right:1px solid var(--border); padding:24px 0; position:sticky; top:60px; height:calc(100vh - 60px); overflow-y:auto; }
 .sidebar-section { padding:0 0 16px; border-bottom:1px solid var(--border); margin-bottom:16px; }
-.sidebar-title { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); padding:8px 20px; font-family:'Geist Mono',monospace; }
-.sidebar-link { display:flex; align-items:center; gap:10px; padding:10px 20px; font-size:13px; color:var(--muted); text-decoration:none; cursor:pointer; transition:all 0.15s; border-left:2px solid transparent; }
+.sidebar-title { font-size:15px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); padding:8px 20px; font-family:'Geist Mono',monospace; }
+.sidebar-link { display:flex; align-items:center; gap:10px; padding:10px 20px; font-size:15px; color:var(--muted); text-decoration:none; cursor:pointer; transition:all 0.15s; border-left:2px solid transparent; }
 .sidebar-link:hover { color:var(--text); background:var(--surface); }
 .sidebar-link.active { color:var(--accent); border-left-color:var(--accent); background:var(--surface); }
 .sidebar-link .sl-dot { width:5px; height:5px; border-radius:50%; background:var(--border2); flex-shrink:0; }
 .sidebar-link.active .sl-dot { background:var(--accent); }
 
 .sidebar-company-card { margin:0 16px 16px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px; cursor:pointer; }
-.scc-name { font-size:13px; font-weight:500; margin-bottom:2px; }
-.scc-meta { font-size:11px; color:var(--muted); }
+.scc-name { font-size:15px; font-weight:500; margin-bottom:2px; }
+.scc-meta { font-size:15px; color:var(--muted); }
 
 /* CONTENT */
 .content { padding:40px 48px 80px; }
 
 /* COMPANY HEADER */
 .co-header { margin-bottom:36px; padding-bottom:32px; border-bottom:1px solid var(--border); }
-.co-badge { display:inline-flex; align-items:center; gap:8px; background:var(--surface2); border:1px solid var(--border2); border-radius:6px; padding:4px 12px; font-size:11px; color:var(--muted); margin-bottom:12px; font-family:'Geist Mono',monospace; }
+.co-badge { display:inline-flex; align-items:center; gap:8px; background:var(--surface2); border:1px solid var(--border2); border-radius:6px; padding:4px 12px; font-size:15px; color:var(--muted); margin-bottom:12px; font-family:'Geist Mono',monospace; }
 .co-title { font-family:'Fraunces',serif; font-size:48px; font-weight:900; letter-spacing:-1.5px; margin-bottom:10px; }
 .co-tagline { color:var(--muted); font-size:15px; line-height:1.65; max-width:640px; margin-bottom:16px; }
 .co-pills { display:flex; gap:8px; flex-wrap:wrap; }
-.co-pill { padding:5px 12px; border-radius:6px; font-size:11px; border:1px solid var(--border2); color:var(--muted); font-family:'Geist Mono',monospace; }
+.co-pill { padding:5px 12px; border-radius:6px; font-size:15px; border:1px solid var(--border2); color:var(--muted); font-family:'Geist Mono',monospace; }
 
 /* INSIGHT BOX */
 .insight-box { background:linear-gradient(135deg,rgba(240,224,64,0.06),rgba(240,224,64,0.02)); border:1px solid rgba(240,224,64,0.2); border-radius:12px; padding:20px 24px; margin-bottom:36px; display:flex; gap:16px; align-items:flex-start; }
 .insight-icon { font-size:20px; flex-shrink:0; }
-.insight-title { font-size:13px; font-weight:600; color:var(--accent); margin-bottom:6px; }
-.insight-text { font-size:13px; color:#aaa; line-height:1.65; }
+.insight-title { font-size:15px; font-weight:600; color:var(--accent); margin-bottom:6px; }
+.insight-text { font-size:15px; color:#aaa; line-height:1.65; }
 
 /* SECTION HEADERS */
-.sec-label { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:6px; font-family:'Geist Mono',monospace; }
+.sec-label { font-size:15px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:6px; font-family:'Geist Mono',monospace; }
 .sec-title { font-family:'Fraunces',serif; font-size:26px; font-weight:700; margin-bottom:24px; display:flex; align-items:center; gap:12px; }
 .sec-title::after { content:''; flex:1; height:1px; background:var(--border); }
 
@@ -56,18 +56,18 @@
 .bm-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:48px; }
 .bm-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:22px; }
 .bm-num { font-family:'Fraunces',serif; font-size:36px; font-weight:900; color:var(--border2); margin-bottom:8px; }
-.bm-title { font-size:14px; font-weight:600; margin-bottom:8px; line-height:1.3; }
-.bm-body { font-size:12px; color:var(--muted); line-height:1.65; }
+.bm-title { font-size:15px; font-weight:600; margin-bottom:8px; line-height:1.3; }
+.bm-body { font-size:15px; color:var(--muted); line-height:1.65; }
 
 /* P&L WATERFALL */
 .waterfall { margin-bottom:48px; }
 .wf-row { display:grid; grid-template-columns:200px 1fr 70px 90px; align-items:center; gap:12px; margin-bottom:5px; }
-.wf-label { font-size:12px; color:var(--muted); font-family:'Geist Mono',monospace; white-space:nowrap; }
+.wf-label { font-size:15px; color:var(--muted); font-family:'Geist Mono',monospace; white-space:nowrap; }
 .wf-label.bold { color:var(--text); font-weight:500; }
 .wf-bar-wrap { height:28px; background:var(--surface); border-radius:4px; overflow:hidden; position:relative; }
-.wf-bar { height:100%; border-radius:4px; display:flex; align-items:center; padding:0 10px; font-size:10px; font-weight:600; transition:width 1.2s cubic-bezier(0.4,0,0.2,1); min-width:4px; }
-.wf-pct { font-family:'Geist Mono',monospace; font-size:11px; color:var(--muted); text-align:right; }
-.wf-abs { font-family:'Geist Mono',monospace; font-size:12px; text-align:right; }
+.wf-bar { height:100%; border-radius:4px; display:flex; align-items:center; padding:0 10px; font-size:15px; font-weight:600; transition:width 1.2s cubic-bezier(0.4,0,0.2,1); min-width:4px; }
+.wf-pct { font-family:'Geist Mono',monospace; font-size:15px; color:var(--muted); text-align:right; }
+.wf-abs { font-family:'Geist Mono',monospace; font-size:15px; text-align:right; }
 .wf-divider { grid-column:1/-1; height:1px; background:var(--border); margin:4px 0; }
 .wf-row.highlight .wf-label { color:var(--accent); font-weight:600; }
 .wf-row.highlight .wf-abs { color:var(--accent); font-weight:600; }
@@ -76,8 +76,8 @@
 /* CHARTS */
 .charts-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:48px; }
 .chart-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:24px; }
-.chart-title { font-size:14px; font-weight:600; margin-bottom:4px; }
-.chart-sub { font-size:12px; color:var(--muted); margin-bottom:20px; }
+.chart-title { font-size:15px; font-weight:600; margin-bottom:4px; }
+.chart-sub { font-size:15px; color:var(--muted); margin-bottom:20px; }
 .chart-wrap { position:relative; height:200px; }
 
 /* COST BREAKDOWN */
@@ -85,9 +85,9 @@
 .cost-row { display:grid; grid-template-columns:14px 2fr 3fr 60px; align-items:start; gap:16px; padding:18px 0; border-bottom:1px solid var(--border); }
 .cost-row:last-child { border-bottom:none; }
 .cost-dot { width:10px; height:10px; border-radius:50%; margin-top:4px; flex-shrink:0; }
-.cost-name { font-size:14px; font-weight:600; margin-bottom:3px; }
-.cost-pct-badge { font-family:'Geist Mono',monospace; font-size:11px; color:var(--muted); }
-.cost-insight { font-size:12px; color:var(--muted); line-height:1.65; }
+.cost-name { font-size:15px; font-weight:600; margin-bottom:3px; }
+.cost-pct-badge { font-family:'Geist Mono',monospace; font-size:15px; color:var(--muted); }
+.cost-insight { font-size:15px; color:var(--muted); line-height:1.65; }
 .cost-pct { font-family:'Geist Mono',monospace; font-size:22px; font-weight:500; text-align:right; }
 
 /* COMPARE TABLE */
@@ -96,9 +96,9 @@
 .compare-row { display:grid; padding:14px 20px; border-bottom:1px solid var(--border); align-items:center; }
 .compare-row:last-child { border-bottom:none; }
 .compare-row:hover { background:var(--surface2); }
-.compare-metric { font-size:13px; font-weight:500; }
-.compare-metric-sub { font-size:11px; color:var(--muted); font-weight:400; }
-.compare-val { font-family:'Geist Mono',monospace; font-size:13px; text-align:center; }
+.compare-metric { font-size:15px; font-weight:500; }
+.compare-metric-sub { font-size:15px; color:var(--muted); font-weight:400; }
+.compare-val { font-family:'Geist Mono',monospace; font-size:15px; text-align:center; }
 .val-good { color:var(--green); }
 .val-mid { color:var(--accent); }
 .val-low { color:var(--accent3); }
@@ -109,8 +109,8 @@
 .insight-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:22px; transition:all 0.2s; }
 .insight-card:hover { border-color:var(--accent); }
 .ic-num { font-family:'Fraunces',serif; font-size:36px; font-weight:900; color:var(--border2); margin-bottom:8px; }
-.ic-title { font-size:14px; font-weight:600; margin-bottom:8px; line-height:1.3; }
-.ic-body { font-size:12px; color:var(--muted); line-height:1.65; }
+.ic-title { font-size:15px; font-weight:600; margin-bottom:8px; line-height:1.3; }
+.ic-body { font-size:15px; color:var(--muted); line-height:1.65; }
 </style>
 </head>
 <body>
@@ -145,7 +145,7 @@
     <a class="sidebar-link" onclick="scrollTo('benchmarks')"><span class="sl-dot"></span>Industry Benchmarks</a>
     <a class="sidebar-link" onclick="scrollTo('unique-insights')"><span class="sl-dot"></span>Unique Insights</a>
 
-    <div style="margin:20px 16px 8px; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); font-family:'Geist Mono',monospace;">Other Companies</div>
+    <div style="margin:20px 16px 8px; font-size:15px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); font-family:'Geist Mono',monospace;">Other Companies</div>
     <div id="other-companies"></div>
   </div>
 
@@ -387,7 +387,7 @@ function render(id) {
         <div style="text-align:right;flex-shrink:0;padding-top:10px">
           ${statusTag}
           <div style="font-family:'Geist Mono',monospace;font-size:28px;font-weight:700;color:var(--accent);margin-top:6px">₹${d.pnl[0].value.toLocaleString('en-IN')} Cr</div>
-          <div style="font-size:11px;color:var(--muted);font-family:'Geist Mono',monospace">${d.fy} REVENUE</div>
+          <div style="font-size:15px;color:var(--muted);font-family:'Geist Mono',monospace">${d.fy} REVENUE</div>
         </div>
       </div>
       <div class="co-tagline">${d.tagline}</div>
@@ -448,7 +448,7 @@ function render(id) {
       <div class="sec-title">${d.name} vs Competitors</div>
       <div class="compare-card">
         <div class="compare-header" style="grid-template-columns:${gridCols}">
-          <div style="font-size:11px;color:var(--muted);letter-spacing:1px;font-family:'Geist Mono',monospace">Metric</div>
+          <div style="font-size:15px;color:var(--muted);letter-spacing:1px;font-family:'Geist Mono',monospace">Metric</div>
           ${peerHeaders}
         </div>
         ${peerRows}
