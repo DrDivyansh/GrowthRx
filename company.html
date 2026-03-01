@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GrowthRx — Company Deep Dive</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+/* BREADCRUMB */
+.breadcrumb { padding:16px 48px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); }
+.breadcrumb a { color:var(--muted); text-decoration:none; }
+.breadcrumb a:hover { color:var(--text); }
+.breadcrumb span { color:var(--border2); }
+
+/* LAYOUT */
+.page-layout { display:grid; grid-template-columns:260px 1fr; min-height:100vh; }
+
+/* SIDEBAR */
+.sidebar { border-right:1px solid var(--border); padding:24px 0; position:sticky; top:60px; height:calc(100vh - 60px); overflow-y:auto; }
+.sidebar-section { padding:0 0 16px; border-bottom:1px solid var(--border); margin-bottom:16px; }
+.sidebar-title { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); padding:8px 20px; font-family:'Geist Mono',monospace; }
+.sidebar-link { display:flex; align-items:center; gap:10px; padding:10px 20px; font-size:13px; color:var(--muted); text-decoration:none; cursor:pointer; transition:all 0.15s; border-left:2px solid transparent; }
+.sidebar-link:hover { color:var(--text); background:var(--surface); }
+.sidebar-link.active { color:var(--accent); border-left-color:var(--accent); background:var(--surface); }
+.sidebar-link .sl-dot { width:5px; height:5px; border-radius:50%; background:var(--border2); flex-shrink:0; }
+.sidebar-link.active .sl-dot { background:var(--accent); }
+
+.sidebar-company-card { margin:0 16px 16px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px; cursor:pointer; }
+.scc-name { font-size:13px; font-weight:500; margin-bottom:2px; }
+.scc-meta { font-size:11px; color:var(--muted); }
+
+/* CONTENT */
+.content { padding:40px 48px 80px; }
+
+/* COMPANY HEADER */
+.co-header { margin-bottom:36px; padding-bottom:32px; border-bottom:1px solid var(--border); }
+.co-badge { display:inline-flex; align-items:center; gap:8px; background:var(--surface2); border:1px solid var(--border2); border-radius:6px; padding:4px 12px; font-size:11px; color:var(--muted); margin-bottom:12px; font-family:'Geist Mono',monospace; }
+.co-title { font-family:'Fraunces',serif; font-size:48px; font-weight:900; letter-spacing:-1.5px; margin-bottom:10px; }
+.co-tagline { color:var(--muted); font-size:15px; line-height:1.65; max-width:640px; margin-bottom:16px; }
+.co-pills { display:flex; gap:8px; flex-wrap:wrap; }
+.co-pill { padding:5px 12px; border-radius:6px; font-size:11px; border:1px solid var(--border2); color:var(--muted); font-family:'Geist Mono',monospace; }
+
+/* INSIGHT BOX */
+.insight-box { background:linear-gradient(135deg,rgba(240,224,64,0.06),rgba(240,224,64,0.02)); border:1px solid rgba(240,224,64,0.2); border-radius:12px; padding:20px 24px; margin-bottom:36px; display:flex; gap:16px; align-items:flex-start; }
+.insight-icon { font-size:20px; flex-shrink:0; }
+.insight-title { font-size:13px; font-weight:600; color:var(--accent); margin-bottom:6px; }
+.insight-text { font-size:13px; color:#aaa; line-height:1.65; }
+
+/* SECTION HEADERS */
+.sec-label { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:6px; font-family:'Geist Mono',monospace; }
+.sec-title { font-family:'Fraunces',serif; font-size:26px; font-weight:700; margin-bottom:24px; display:flex; align-items:center; gap:12px; }
+.sec-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* BUSINESS MODEL */
+.bm-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:48px; }
+.bm-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:22px; }
+.bm-num { font-family:'Fraunces',serif; font-size:36px; font-weight:900; color:var(--border2); margin-bottom:8px; }
+.bm-title { font-size:14px; font-weight:600; margin-bottom:8px; line-height:1.3; }
+.bm-body { font-size:12px; color:var(--muted); line-height:1.65; }
+
+/* P&L WATERFALL */
+.waterfall { margin-bottom:48px; }
+.wf-row { display:grid; grid-template-columns:200px 1fr 70px 90px; align-items:center; gap:12px; margin-bottom:5px; }
+.wf-label { font-size:12px; color:var(--muted); font-family:'Geist Mono',monospace; white-space:nowrap; }
+.wf-label.bold { color:var(--text); font-weight:500; }
+.wf-bar-wrap { height:28px; background:var(--surface); border-radius:4px; overflow:hidden; position:relative; }
+.wf-bar { height:100%; border-radius:4px; display:flex; align-items:center; padding:0 10px; font-size:10px; font-weight:600; transition:width 1.2s cubic-bezier(0.4,0,0.2,1); min-width:4px; }
+.wf-pct { font-family:'Geist Mono',monospace; font-size:11px; color:var(--muted); text-align:right; }
+.wf-abs { font-family:'Geist Mono',monospace; font-size:12px; text-align:right; }
+.wf-divider { grid-column:1/-1; height:1px; background:var(--border); margin:4px 0; }
+.wf-row.highlight .wf-label { color:var(--accent); font-weight:600; }
+.wf-row.highlight .wf-abs { color:var(--accent); font-weight:600; }
+.wf-row.negative .wf-abs { color:var(--accent3); }
+
+/* CHARTS */
+.charts-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:48px; }
+.chart-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:24px; }
+.chart-title { font-size:14px; font-weight:600; margin-bottom:4px; }
+.chart-sub { font-size:12px; color:var(--muted); margin-bottom:20px; }
+.chart-wrap { position:relative; height:200px; }
+
+/* COST BREAKDOWN */
+.cost-breakdown { margin-bottom:48px; }
+.cost-row { display:grid; grid-template-columns:14px 2fr 3fr 60px; align-items:start; gap:16px; padding:18px 0; border-bottom:1px solid var(--border); }
+.cost-row:last-child { border-bottom:none; }
+.cost-dot { width:10px; height:10px; border-radius:50%; margin-top:4px; flex-shrink:0; }
+.cost-name { font-size:14px; font-weight:600; margin-bottom:3px; }
+.cost-pct-badge { font-family:'Geist Mono',monospace; font-size:11px; color:var(--muted); }
+.cost-insight { font-size:12px; color:var(--muted); line-height:1.65; }
+.cost-pct { font-family:'Geist Mono',monospace; font-size:22px; font-weight:500; text-align:right; }
+
+/* COMPARE TABLE */
+.compare-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:48px; }
+.compare-header { display:grid; padding:14px 20px; border-bottom:1px solid var(--border); background:var(--surface2); }
+.compare-row { display:grid; padding:14px 20px; border-bottom:1px solid var(--border); align-items:center; }
+.compare-row:last-child { border-bottom:none; }
+.compare-row:hover { background:var(--surface2); }
+.compare-metric { font-size:13px; font-weight:500; }
+.compare-metric-sub { font-size:11px; color:var(--muted); font-weight:400; }
+.compare-val { font-family:'Geist Mono',monospace; font-size:13px; text-align:center; }
+.val-good { color:var(--green); }
+.val-mid { color:var(--accent); }
+.val-low { color:var(--accent3); }
+.val-highlighted { background:rgba(240,224,64,0.1); border-radius:4px; padding:2px 6px; }
+
+/* INSIGHTS */
+.insights-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:48px; }
+.insight-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:22px; transition:all 0.2s; }
+.insight-card:hover { border-color:var(--accent); }
+.ic-num { font-family:'Fraunces',serif; font-size:36px; font-weight:900; color:var(--border2); margin-bottom:8px; }
+.ic-title { font-size:14px; font-weight:600; margin-bottom:8px; line-height:1.3; }
+.ic-body { font-size:12px; color:var(--muted); line-height:1.65; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">Growth<span>Rx</span></a>
+  <div class="nav-pills">
+    <a href="index.html" class="nav-pill">Industries</a>
+    <a href="compare.html" class="nav-pill">Compare</a>
+    <a href="about.html" class="nav-pill">About</a>
+  </div>
+  <a href="#" class="nav-cta">Get Alerts</a>
+</nav>
+
+<div class="breadcrumb">
+  <a href="index.html">Home</a>
+  <span>›</span>
+  <a href="index.html">Retail & D2C</a>
+  <span>›</span>
+  <span id="breadcrumb-name">Loading...</span>
+</div>
+
+<div class="page-layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-title">Jump To</div>
+    <a class="sidebar-link active" onclick="scrollTo('business-model')"><span class="sl-dot"></span>Business Model</a>
+    <a class="sidebar-link" onclick="scrollTo('pl-waterfall')"><span class="sl-dot"></span>P&L Waterfall</a>
+    <a class="sidebar-link" onclick="scrollTo('cost-charts')"><span class="sl-dot"></span>Cost Charts</a>
+    <a class="sidebar-link" onclick="scrollTo('cost-breakdown')"><span class="sl-dot"></span>Cost Deep Dive</a>
+    <a class="sidebar-link" onclick="scrollTo('benchmarks')"><span class="sl-dot"></span>Industry Benchmarks</a>
+    <a class="sidebar-link" onclick="scrollTo('unique-insights')"><span class="sl-dot"></span>Unique Insights</a>
+
+    <div style="margin:20px 16px 8px; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); font-family:'Geist Mono',monospace;">Other Companies</div>
+    <div id="other-companies"></div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content" id="main-content">
+    <div style="color:var(--muted);padding:40px 0;text-align:center;">Loading analysis...</div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-logo">Growth<span>Rx</span></div>
+  <div class="footer-text">Industry intelligence for business minds • Not financial advice • © 2026</div>
+</footer>
+
+<script>
+// All company data embedded
+const DATA = {
+  "nykaa": {
+    "id": "nykaa", "name": "Nykaa", "industry": "retail-d2c", "sector": "Beauty & Personal Care",
+    "founded": 2012, "founder": "Falguni Nayar", "hq": "Mumbai", "status": "profitable", "listed": true, "fy": "FY2024",
+    "tagline": "India's beauty marketplace that proved luxury retail can work online — then doubled down on physical stores.",
+    "description": "Nykaa started as an online beauty retailer and grew into a full omnichannel platform covering beauty, fashion, and B2B. It was the first woman-led unicorn in India to go public.",
+    "keyFacts": ["₹6,386 Cr revenue in FY24", "200+ physical stores", "37% market share in online BPC", "14 subsidiaries", "3,500+ brands on platform"],
+    "topInsight": { "title": "The #1 thing most analysts are missing about Nykaa", "text": "Nykaa's gross margin is 28% because it's a reseller. But its own brands (Dot & Key, Kay Beauty) carry 50–60% margins. As own-brand GMV share grows from 8% to 20%, Nykaa's overall gross margin could jump to 38–40%. This single shift would transform the P&L completely." },
+    "businessModel": [
+      { "num": "01", "title": "Inventory-led Product Sales (78%)", "body": "Buys beauty & personal care products directly from brands, holds inventory, sells on platform. Authenticity guarantee is the trust moat. Higher capital tied up but drives customer loyalty." },
+      { "num": "02", "title": "Marketplace Commission — Fashion (15%)", "body": "Brands sell directly on Nykaa Fashion, Nykaa earns ~8% commission. No inventory risk. Capital-light. Nykaa's take rate is lower than Amazon/Flipkart — deliberately, to attract premium brands." },
+      { "num": "03", "title": "Advertising & Brand Revenue (7%)", "body": "Brands pay for featured placements, sponsored listings, and co-branded campaigns on the platform. This is pure high-margin income that scales with platform traffic. Growing the fastest of all revenue streams." }
+    ],
+    "pnl": [
+      { "label": "Revenue", "value": 6386, "pct": 100, "type": "revenue" },
+      { "label": "(-) COGS / Inventory", "value": -4590, "pct": -71.9, "type": "cost" },
+      { "divider": true },
+      { "label": "Gross Profit", "value": 1796, "pct": 28.1, "type": "profit", "highlight": true },
+      { "label": "(-) Employee Costs", "value": -573, "pct": -8.9, "type": "cost" },
+      { "label": "(-) Marketing & Dist.", "value": -510, "pct": -8.0, "type": "cost" },
+      { "label": "(-) Technology", "value": -191, "pct": -3.0, "type": "cost" },
+      { "label": "(-) Admin & Overhead", "value": -319, "pct": -5.0, "type": "cost" },
+      { "divider": true },
+      { "label": "EBITDA", "value": 320, "pct": 5.0, "type": "profit", "highlight": true },
+      { "label": "(-) Depreciation", "value": -185, "pct": -2.9, "type": "cost" },
+      { "label": "(-) Finance Costs", "value": -95, "pct": -1.5, "type": "cost" },
+      { "divider": true },
+      { "label": "PBT / PAT", "value": 40, "pct": 0.6, "type": "profit", "highlight": true }
+    ],
+    "costPie": { "labels": ["COGS","Employee","Marketing","Technology","Admin","Finance"], "values": [71.9,8.9,8.0,3.0,5.0,1.5], "colors": ["#f04060","#f0a040","#40e0f0","#a040f0","#40e098","#f0e040"] },
+    "costDetails": [
+      { "head": "COGS / Inventory", "pct": 71.9, "crore": 4590, "color": "#f04060", "insight": "Nykaa buys inventory upfront from brands. Beauty & skincare products have 28–35% retail gross margins. The inventory model builds trust (no fakes) but ties up working capital. The key lever: own brands (Dot & Key, Kay Beauty) have 50–60% margins vs 15–20% on third-party products. As own-brand share grows, this line shrinks." },
+      { "head": "Employee & HR", "pct": 8.9, "crore": 573, "color": "#f0a040", "insight": "~12,000 employees including store staff across 200+ locations. Corporate headcount is lean. ESOP expenses inflate reported costs but are non-cash. Retail staff is unavoidable for the omnichannel strategy — but store-level EBITDA turns positive within a year of launch." },
+      { "head": "Marketing & Distribution", "pct": 8.0, "crore": 510, "color": "#40e0f0", "insight": "Influencer marketing, content creation, celebrity collaborations, and logistics. Nykaa's marketing is high-quality brand content that drives organic traffic vs pure performance marketing. Repeat purchase rate is ~75%, which significantly reduces effective acquisition cost per rupee of revenue." },
+      { "head": "Technology & Platform", "pct": 3.0, "crore": 191, "color": "#a040f0", "insight": "App, website, product recommendation engine, and data infrastructure. Relatively low for a tech-first platform — but the platform generates ₹2,500+ Cr GMV from app alone. Strong ROI. AI-powered personalization is driving higher basket sizes and reducing return rates." },
+      { "head": "Admin & Overhead", "pct": 5.0, "crore": 319, "color": "#40e098", "insight": "Physical store rental across 60 cities, corporate costs, legal, and compliance. 200+ stores means lease costs are significant and rising as they expand. However, store-level economics are strong — each store reaches EBITDA breakeven in under 12 months." },
+      { "head": "Finance / Debt Costs", "pct": 1.5, "crore": 95, "color": "#f0e040", "insight": "Nykaa has a clean balance sheet — raised equity via IPO. Working capital borrowings are modest. Low financial risk. As profitability improves, this line will stay flat or shrink." }
+    ],
+    "peers": [
+      { "name": "Nykaa", "gm": "28.1%", "ebitda": "5.0%", "mktg": "8.0%", "emp": "8.9%", "pat": "0.6%", "hl": true },
+      { "name": "Mamaearth", "gm": "68.0%", "ebitda": "5.5%", "mktg": "35.0%", "emp": "8.0%", "pat": "2.5%", "hl": false },
+      { "name": "Sugar Cosmetics", "gm": "55.0%", "ebitda": "-8.0%", "mktg": "22.0%", "emp": "12.0%", "pat": "-8.0%", "hl": false },
+      { "name": "Purplle", "gm": "42.0%", "ebitda": "-12.0%", "mktg": "28.0%", "emp": "14.0%", "pat": "-12.0%", "hl": false }
+    ],
+    "insights": [
+      { "num": "01", "title": "Own brands are the real margin story — not the marketplace", "body": "Dot & Key grew 10x since acquisition, hitting ₹600 Cr GMV. Own brands carry 50–60% gross margins vs 15–20% on third-party products. As own-brand share rises from 8% to 20%, Nykaa's GM could jump from 28% to 38%. This single shift transforms the P&L completely — and most analysts are undermodelling it." },
+      { "num": "02", "title": "₹0.99 to earn ₹1 — thin but improving in the right direction", "body": "Nykaa spent ₹0.99 to earn every rupee of revenue in FY24. Sounds razor-thin, but the direction matters more than the level: it was ₹1.02 in FY23. Contribution margin per order is positive and improving. As fixed cost base dilutes against a growing revenue base, operating leverage kicks in sharply." },
+      { "num": "03", "title": "B2B Superstore is the hidden growth engine nobody's modelling", "body": "Superstore by Nykaa — selling to kirana stores, pharmacies, and beauty salons — grew 84% YoY to ₹597 Cr in FY24. This is an entirely separate revenue stream with zero marketing cost and recurring buyers. Analysts valuing Nykaa purely on B2C metrics are missing this segment entirely." }
+    ]
+  },
+  "lenskart": {
+    "id": "lenskart", "name": "Lenskart", "industry": "retail-d2c", "sector": "Eyewear & Vision Care",
+    "founded": 2010, "founder": "Peyush Bansal", "hq": "New Delhi", "status": "near-breakeven", "listed": false, "fy": "FY2024",
+    "tagline": "Disrupted India's fragmented eyewear market by manufacturing its own lenses and controlling the full supply chain — now going global.",
+    "description": "Lenskart turned a low-tech, unorganised category into a brand-driven, tech-enabled omnichannel business. It manufactures its own lenses in Rajasthan, runs 2,500+ stores and generates 42% of revenue from international markets.",
+    "keyFacts": ["₹5,427 Cr revenue in FY24", "2,500+ stores globally", "42% revenue from overseas", "₹10 Cr net loss (near breakeven)", "SoftBank, Temasek backed"],
+    "topInsight": { "title": "The #1 thing that separates Lenskart from every D2C competitor", "text": "Lenskart manufactures its own lenses in Rajasthan. This single decision explains their 67% gross margin (vs 25–35% for most retail D2C brands). A pair of lenses costs ₹80 to make and sells for ₹600–2,000. This is a manufacturing business disguised as a retail company." },
+    "businessModel": [
+      { "num": "01", "title": "Vertical Manufacturing + Retail (95%)", "body": "Own lens manufacturing factory in Rajasthan. Controls quality and cost end-to-end. Lenses cost ₹80 to make, sell for ₹600–2,000. Margins on lenses are 60–70%. This is the core competitive moat no competitor can quickly replicate." },
+      { "num": "02", "title": "Omnichannel Stores — COCO + Franchise", "body": "Mix of company-owned and franchise stores. Franchise model is capital-light — franchisee funds the store, Lenskart provides inventory and brand. Each store offers eye testing, frame fitting, and on-site lens cutting. Average store hits EBITDA positive in under 12 months." },
+      { "num": "03", "title": "Lenskart Gold Subscription (₹600/year)", "body": "5M+ Gold members. Benefits: 1 free frame/year, free eye tests, priority service. At ₹600/year, 5M members = ₹300 Cr annual recurring subscription revenue. Drives repeat purchase, builds LTV, and lowers customer acquisition cost for returning members." }
+    ],
+    "pnl": [
+      { "label": "Revenue", "value": 5427, "pct": 100, "type": "revenue" },
+      { "label": "(-) COGS / Materials", "value": -1776, "pct": -32.7, "type": "cost" },
+      { "divider": true },
+      { "label": "Gross Profit", "value": 3651, "pct": 67.3, "type": "profit", "highlight": true },
+      { "label": "(-) Employee Costs", "value": -1086, "pct": -20.0, "type": "cost" },
+      { "label": "(-) Marketing & Commissions", "value": -706, "pct": -13.0, "type": "cost" },
+      { "label": "(-) Technology", "value": -217, "pct": -4.0, "type": "cost" },
+      { "label": "(-) Admin, Rent & Overhead", "value": -1092, "pct": -20.1, "type": "cost" },
+      { "divider": true },
+      { "label": "EBITDA", "value": 550, "pct": 10.1, "type": "profit", "highlight": true },
+      { "label": "(-) Depreciation", "value": -672, "pct": -12.4, "type": "cost" },
+      { "label": "(-) Finance Costs", "value": -218, "pct": -4.0, "type": "cost" },
+      { "divider": true },
+      { "label": "PBT / PAT (Net Loss)", "value": -10, "pct": -0.2, "type": "loss", "highlight": true }
+    ],
+    "costPie": { "labels": ["COGS","Employee","Marketing","Technology","Admin & Rent","Finance"], "values": [32.7,20.0,13.0,4.0,20.1,4.0], "colors": ["#f04060","#f0a040","#40e0f0","#a040f0","#40e098","#f0e040"] },
+    "costDetails": [
+      { "head": "COGS / Materials", "pct": 32.7, "crore": 1776, "color": "#f04060", "insight": "Lenskart manufactures its own lenses — this is why COGS is only 33% vs 72% for Nykaa. Own manufacturing gives 60–70% gross margins on lenses. Frames are increasingly sourced from own Rajasthan factory. This vertical integration is the #1 reason Lenskart's margins are structurally superior to most D2C brands." },
+      { "head": "Employee & HR", "pct": 20.0, "crore": 1086, "color": "#f0a040", "insight": "High headcount of 3,250+ for 2,500+ stores. Store optometrists, technicians, and managers are essential but expensive. Grew 51% YoY as store count expanded aggressively. As franchise mix increases, company employee count will moderate since franchisees hire their own staff." },
+      { "head": "Marketing & Commissions", "pct": 13.0, "crore": 706, "color": "#40e0f0", "insight": "Includes franchise agent commission (largest chunk), traditional advertising, and digital marketing. Peyush Bansal's Shark Tank appearances generated hundreds of crores in free brand recall. The franchise commission model means this line is structurally elevated — but it's paying for store expansion, not just awareness." },
+      { "head": "Technology & Platform", "pct": 4.0, "crore": 217, "color": "#a040f0", "insight": "3D try-on, virtual mirror, AI-powered prescription verification, home eye-test app. Technology is a clear differentiator but spend is disciplined. 70% of first-time customers acquire through digital channels — the tech investment reduces physical marketing costs significantly." },
+      { "head": "Admin, Rent & Overhead", "pct": 20.1, "crore": 1092, "color": "#40e098", "insight": "The largest operational cost bucket — 2,500 store leases globally. India tier-2/3 city stores are cheaper; Japan, Singapore, Thailand locations are expensive. Depreciation (₹672 Cr) on store fit-outs flows through here. As stores mature beyond 3 years, depreciation charges decline sharply — this was the key driver of FY25 PAT profitability." },
+      { "head": "Finance / Debt Costs", "pct": 4.0, "crore": 218, "color": "#f0e040", "insight": "Borrowed to fund factory expansion and international store rollout. ₹218 Cr debt service is what pushed PAT negative even when EBITDA was a healthy +₹550 Cr. As expansion capex slows post-FY25, interest burden will shrink. By FY25 they already turned PAT positive at ₹297 Cr." }
+    ],
+    "peers": [
+      { "name": "Lenskart", "gm": "67.3%", "ebitda": "10.1%", "mktg": "13.0%", "emp": "20.0%", "pat": "-0.2%", "hl": true },
+      { "name": "Titan Eyeplus", "gm": "45.0%", "ebitda": "12.0%", "mktg": "8.0%", "emp": "15.0%", "pat": "8.0%", "hl": false },
+      { "name": "Specsmakers", "gm": "55.0%", "ebitda": "6.0%", "mktg": "10.0%", "emp": "18.0%", "pat": "2.0%", "hl": false },
+      { "name": "Coolwinks", "gm": "48.0%", "ebitda": "-15.0%", "mktg": "25.0%", "emp": "14.0%", "pat": "-15.0%", "hl": false }
+    ],
+    "insights": [
+      { "num": "01", "title": "67% gross margin in 'retail' — and most people don't understand why", "body": "Retail companies have 25–35% gross margins. Lenskart's 67% looks like a SaaS company. The reason: they manufacture their own lenses. A pair costs ₹80 to make and sells for ₹600–2,000. That manufacturing moat took years to build — competitors can't replicate it quickly. This is the structural advantage the P&L is showing you." },
+      { "num": "02", "title": "Japan is secretly their highest-margin market", "body": "Japan contributed ~₹800 Cr in FY24 revenue. Japanese consumers pay ₹8,000–15,000 per frame vs ₹1,500 in India. Same manufacturing cost, much higher ASP = dramatically better per-unit economics. International segment growing 17% YoY — this is the real margin expansion story, not India." },
+      { "num": "03", "title": "Depreciation was hiding ₹550 Cr of real profits — now it's reversing", "body": "Lenskart showed ₹10 Cr net loss in FY24 but EBITDA was +₹550 Cr (10% margin). The gap: ₹672 Cr of depreciation on 2,500 store fit-outs. Once stores are fully depreciated, this vanishes from the P&L. This is exactly what happened in FY25 — PAT jumped to ₹297 Cr. The 'loss-making startup' narrative was always wrong." }
+    ]
+  }
+};
+
+const OTHER_COMPANIES = { "nykaa": "lenskart", "lenskart": "nykaa" };
+const COMPANY_NAMES = { "nykaa": "Nykaa", "lenskart": "Lenskart" };
+
+function getParam(key) {
+  return new URLSearchParams(window.location.search).get(key) || 'nykaa';
+}
+
+function scrollTo(id) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+function valColor(v) {
+  const n = parseFloat(v);
+  if (n > 10) return 'val-good';
+  if (n > 0) return 'val-mid';
+  return 'val-low';
+}
+
+function render(id) {
+  const d = DATA[id];
+  if (!d) return;
+
+  document.title = `GrowthRx — ${d.name} Analysis`;
+  document.getElementById('breadcrumb-name').textContent = d.name;
+
+  // Other companies sidebar
+  const otherId = OTHER_COMPANIES[id];
+  const otherName = COMPANY_NAMES[otherId];
+  document.getElementById('other-companies').innerHTML = `
+    <a href="company.html?id=${otherId}" class="sidebar-company-card" style="display:block;text-decoration:none;color:var(--text);margin:0 16px 8px;">
+      <div class="scc-name">${otherName}</div>
+      <div class="scc-meta">Retail & D2C • View Analysis →</div>
+    </a>
+  `;
+
+  // Build P&L rows
+  const pnlRows = d.pnl.map(row => {
+    if (row.divider) return `<div class="wf-divider"></div>`;
+    const isRevenue = row.type === 'revenue';
+    const isCost = row.type === 'cost';
+    const isLoss = row.type === 'loss';
+    const isProfit = row.type === 'profit';
+    const absPct = Math.abs(row.pct);
+    const barColor = isRevenue ? 'var(--accent)' : isCost ? '#f04060' : isLoss ? '#f04060' : 'var(--green)';
+    const barTextColor = (isRevenue || isLoss) ? '#000' : '#fff';
+    const absColor = isCost || isLoss ? 'var(--accent3)' : isRevenue || isProfit ? (isProfit && row.highlight ? 'var(--accent)' : 'var(--green)') : 'var(--text)';
+    return `
+      <div class="wf-row ${row.highlight ? 'highlight' : ''}">
+        <div class="wf-label ${row.highlight ? 'bold' : ''}">${row.label}</div>
+        <div class="wf-bar-wrap">
+          <div class="wf-bar" style="width:${Math.min(absPct,100)}%;background:${barColor};color:${barTextColor};">
+            ${absPct > 8 ? Math.abs(row.pct) + '%' : ''}
+          </div>
+        </div>
+        <div class="wf-pct" style="color:${absColor}">${row.pct > 0 ? '' : ''}${row.pct}%</div>
+        <div class="wf-abs" style="color:${absColor}">₹${Math.abs(row.value).toLocaleString('en-IN')} Cr</div>
+      </div>
+    `;
+  }).join('');
+
+  // Build cost rows
+  const costRows = d.costDetails.map(c => `
+    <div class="cost-row">
+      <div class="cost-dot" style="background:${c.color}"></div>
+      <div>
+        <div class="cost-name">${c.head}</div>
+        <div class="cost-pct-badge">₹${c.crore.toLocaleString('en-IN')} Cr</div>
+      </div>
+      <div class="cost-insight">${c.insight}</div>
+      <div class="cost-pct" style="color:${c.color}">${c.pct}%</div>
+    </div>
+  `).join('');
+
+  // Build peer comparison
+  const colCount = d.peers.length + 1;
+  const gridCols = `2fr ${Array(d.peers.length).fill('1fr').join(' ')}`;
+  const peerHeaders = d.peers.map(p => `<div class="compare-val" style="${p.hl ? 'color:var(--accent);font-weight:600' : 'color:var(--muted)'}">${p.name}</div>`).join('');
+  const peerRows = [
+    { label: 'Gross Margin', sub: 'Revenue − COGS', key: 'gm' },
+    { label: 'EBITDA Margin', sub: 'Operating profit', key: 'ebitda' },
+    { label: 'Marketing %', sub: 'of Revenue', key: 'mktg' },
+    { label: 'Employee %', sub: 'of Revenue', key: 'emp' },
+    { label: 'PAT Margin', sub: 'Net profit', key: 'pat' }
+  ].map(r => `
+    <div class="compare-row" style="grid-template-columns:${gridCols}">
+      <div class="compare-metric">${r.label}<br><span class="compare-metric-sub">${r.sub}</span></div>
+      ${d.peers.map(p => `<div class="compare-val ${valColor(p[r.key])} ${p.hl ? 'val-highlighted' : ''}">${p[r.key]}</div>`).join('')}
+    </div>
+  `).join('');
+
+  // Build insights
+  const insightCards = d.insights.map(i => `
+    <div class="insight-card">
+      <div class="ic-num">${i.num}</div>
+      <div class="ic-title">${i.title}</div>
+      <div class="ic-body">${i.body}</div>
+    </div>
+  `).join('');
+
+  // Business model
+  const bmCards = d.businessModel.map(b => `
+    <div class="bm-card">
+      <div class="bm-num">${b.num}</div>
+      <div class="bm-title">${b.title}</div>
+      <div class="bm-body">${b.body}</div>
+    </div>
+  `).join('');
+
+  const statusTag = d.status === 'profitable'
+    ? '<span class="tag-profit">PROFITABLE</span>'
+    : '<span class="tag-neutral">NEAR BREAKEVEN</span>';
+
+  document.getElementById('main-content').innerHTML = `
+    <!-- HEADER -->
+    <div class="co-header fade-up">
+      <div class="co-badge">🛍️ Retail & D2C • ${d.sector} • ${d.fy}</div>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:20px">
+        <div class="co-title">${d.name}</div>
+        <div style="text-align:right;flex-shrink:0;padding-top:10px">
+          ${statusTag}
+          <div style="font-family:'Geist Mono',monospace;font-size:28px;font-weight:700;color:var(--accent);margin-top:6px">₹${d.pnl[0].value.toLocaleString('en-IN')} Cr</div>
+          <div style="font-size:11px;color:var(--muted);font-family:'Geist Mono',monospace">${d.fy} REVENUE</div>
+        </div>
+      </div>
+      <div class="co-tagline">${d.tagline}</div>
+      <div class="co-pills">${d.keyFacts.map(f => `<span class="co-pill">${f}</span>`).join('')}</div>
+    </div>
+
+    <!-- TOP INSIGHT -->
+    <div class="insight-box">
+      <div class="insight-icon">💡</div>
+      <div>
+        <div class="insight-title">${d.topInsight.title}</div>
+        <div class="insight-text">${d.topInsight.text}</div>
+      </div>
+    </div>
+
+    <!-- BUSINESS MODEL -->
+    <div id="business-model">
+      <div class="sec-label">Business Model</div>
+      <div class="sec-title">How ${d.name} Makes Money</div>
+      <div class="bm-grid">${bmCards}</div>
+    </div>
+
+    <!-- P&L WATERFALL -->
+    <div id="pl-waterfall">
+      <div class="sec-label">P&L Waterfall — ${d.fy}</div>
+      <div class="sec-title">From Revenue to PAT</div>
+      <div class="waterfall">${pnlRows}</div>
+    </div>
+
+    <!-- CHARTS -->
+    <div id="cost-charts">
+      <div class="sec-label">Visual Breakdown</div>
+      <div class="sec-title">Cost Structure Charts</div>
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-title">Cost as % of Revenue</div>
+          <div class="chart-sub">Where every rupee of revenue goes</div>
+          <div class="chart-wrap"><canvas id="costPie"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Gross Margin vs Peers</div>
+          <div class="chart-sub">Industry comparison ${d.fy}</div>
+          <div class="chart-wrap"><canvas id="gmBar"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COST DEEP DIVE -->
+    <div id="cost-breakdown">
+      <div class="sec-label">Cost Deep Dive</div>
+      <div class="sec-title">What's Behind Each Cost Head?</div>
+      <div class="cost-breakdown">${costRows}</div>
+    </div>
+
+    <!-- BENCHMARKS -->
+    <div id="benchmarks">
+      <div class="sec-label">Industry Benchmark</div>
+      <div class="sec-title">${d.name} vs Competitors</div>
+      <div class="compare-card">
+        <div class="compare-header" style="grid-template-columns:${gridCols}">
+          <div style="font-size:11px;color:var(--muted);letter-spacing:1px;font-family:'Geist Mono',monospace">Metric</div>
+          ${peerHeaders}
+        </div>
+        ${peerRows}
+      </div>
+    </div>
+
+    <!-- UNIQUE INSIGHTS -->
+    <div id="unique-insights">
+      <div class="sec-label">What Nobody's Talking About</div>
+      <div class="sec-title">Unique Insights</div>
+      <div class="insights-grid">${insightCards}</div>
+    </div>
+  `;
+
+  // Render charts
+  setTimeout(() => {
+    const pie = document.getElementById('costPie');
+    const bar = document.getElementById('gmBar');
+    if (pie) new Chart(pie.getContext('2d'), {
+      type:'doughnut',
+      data:{ labels:d.costPie.labels, datasets:[{ data:d.costPie.values, backgroundColor:d.costPie.colors, borderWidth:0, hoverOffset:8 }] },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'right', labels:{ color:'#888', font:{ size:11 }, boxWidth:10, padding:10 } } }, cutout:'65%' }
+    });
+    if (bar) new Chart(bar.getContext('2d'), {
+      type:'bar',
+      data:{
+        labels: d.peers.map(p => p.name),
+        datasets:[{ label:'Gross Margin %', data:d.peers.map(p => parseFloat(p.gm)), backgroundColor:d.peers.map(p => p.hl ? 'rgba(240,224,64,0.9)' : 'rgba(100,100,100,0.5)'), borderRadius:6, borderWidth:0 }]
+      },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ x:{ grid:{ color:'#1f1f1f' }, ticks:{ color:'#888', font:{ size:11 } } }, y:{ grid:{ color:'#1f1f1f' }, ticks:{ color:'#888', font:{ size:10 }, callback:v => v+'%' } } } }
+    });
+  }, 100);
+}
+
+render(getParam('id'));
+</script>
+</body>
+</html>

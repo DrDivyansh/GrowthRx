@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GrowthRx — Compare Industries</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+.page-header { padding:48px 48px 32px; border-bottom:1px solid var(--border); }
+.page-title { font-family:'Fraunces',serif; font-size:48px; font-weight:900; letter-spacing:-1.5px; margin-bottom:10px; }
+.page-title em { font-style:italic; color:var(--accent); }
+.page-sub { color:var(--muted); font-size:15px; max-width:500px; }
+
+.compare-page { padding:48px; }
+
+/* SIDE BY SIDE HEADER */
+.companies-header { display:grid; grid-template-columns:220px 1fr 1fr; gap:0; margin-bottom:0; border:1px solid var(--border); border-radius:12px 12px 0 0; overflow:hidden; }
+.ch-empty { padding:20px; background:var(--surface2); border-right:1px solid var(--border); }
+.ch-company { padding:20px 24px; background:var(--surface); border-right:1px solid var(--border); }
+.ch-company:last-child { border-right:none; }
+.ch-name { font-family:'Fraunces',serif; font-size:22px; font-weight:700; margin-bottom:4px; }
+.ch-sector { font-size:12px; color:var(--muted); margin-bottom:8px; }
+.ch-rev { font-family:'Geist Mono',monospace; font-size:16px; font-weight:500; color:var(--accent); }
+
+/* COMPARE ROWS */
+.compare-section-title { background:var(--surface2); border:1px solid var(--border); border-top:none; display:grid; grid-template-columns:220px 1fr 1fr; }
+.cst-label { padding:10px 20px; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); font-family:'Geist Mono',monospace; border-right:1px solid var(--border); grid-column:1/-1; }
+
+.compare-row-wrap { border:1px solid var(--border); border-top:none; display:grid; grid-template-columns:220px 1fr 1fr; }
+.compare-row-wrap:last-child { border-radius:0 0 12px 12px; overflow:hidden; }
+.cr-label { padding:16px 20px; font-size:12px; color:var(--muted); font-family:'Geist Mono',monospace; border-right:1px solid var(--border); display:flex; align-items:center; background:var(--surface2); }
+.cr-cell { padding:16px 24px; border-right:1px solid var(--border); display:flex; flex-direction:column; gap:6px; }
+.cr-cell:last-child { border-right:none; }
+.cr-value { font-family:'Geist Mono',monospace; font-size:18px; font-weight:500; }
+.cr-bar { height:6px; border-radius:3px; background:var(--border); overflow:hidden; width:100%; }
+.cr-bar-fill { height:100%; border-radius:3px; }
+.cr-note { font-size:11px; color:var(--muted); line-height:1.5; }
+.cr-winner { background:rgba(240,224,64,0.06); }
+
+/* FULL COMPARISON CHART */
+.chart-section { margin-top:48px; }
+.chart-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:24px; }
+.chart-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:24px; }
+.chart-title { font-size:15px; font-weight:600; margin-bottom:4px; }
+.chart-sub { font-size:12px; color:var(--muted); margin-bottom:20px; }
+.chart-wrap { position:relative; height:220px; }
+
+/* KEY TAKEAWAYS */
+.takeaways { margin-top:48px; }
+.ta-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:24px; }
+.ta-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:24px; }
+.ta-company { font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--accent); margin-bottom:10px; font-family:'Geist Mono',monospace; }
+.ta-title { font-family:'Fraunces',serif; font-size:20px; font-weight:700; margin-bottom:12px; line-height:1.25; }
+.ta-points { display:flex; flex-direction:column; gap:10px; }
+.ta-point { display:flex; gap:10px; align-items:flex-start; font-size:13px; color:var(--muted); line-height:1.6; }
+.ta-bullet { color:var(--accent); flex-shrink:0; margin-top:2px; }
+
+.sec-title { font-family:'Fraunces',serif; font-size:28px; font-weight:700; display:flex; align-items:center; gap:12px; }
+.sec-title::after { content:''; flex:1; height:1px; background:var(--border); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">Growth<span>Rx</span></a>
+  <div class="nav-pills">
+    <a href="index.html" class="nav-pill">Industries</a>
+    <a href="compare.html" class="nav-pill active">Compare</a>
+    <a href="about.html" class="nav-pill">About</a>
+  </div>
+  <a href="#" class="nav-cta">Get Alerts</a>
+</nav>
+
+<div class="page-header fade-up">
+  <div class="page-title">Compare <em>Side by Side</em></div>
+  <p class="page-sub">Same industry, different business models. See exactly how cost structures differ — and why it matters.</p>
+</div>
+
+<div class="compare-page">
+
+  <!-- COMPANIES HEADER -->
+  <div class="companies-header">
+    <div class="ch-empty"></div>
+    <div class="ch-company">
+      <div class="ch-name">Nykaa</div>
+      <div class="ch-sector">Beauty & Personal Care • FY2024</div>
+      <div class="ch-rev">₹6,386 Cr Revenue</div>
+    </div>
+    <div class="ch-company">
+      <div class="ch-name">Lenskart</div>
+      <div class="ch-sector">Eyewear & Vision Care • FY2024</div>
+      <div class="ch-rev">₹5,427 Cr Revenue</div>
+    </div>
+  </div>
+
+  <!-- P&L METRICS -->
+  <div class="compare-section-title">
+    <div class="cst-label">📊 P&L METRICS (AS % OF REVENUE)</div>
+  </div>
+
+  <div class="compare-row-wrap">
+    <div class="cr-label">Gross Margin</div>
+    <div class="cr-cell">
+      <div class="cr-value" style="color:#f0a040">28.1%</div>
+      <div class="cr-bar"><div class="cr-bar-fill" style="width:28.1%;background:#f0a040"></div></div>
+      <div class="cr-note">Reseller model — buys at wholesale, sells at retail. Margin limited by brand pricing power.</div>
+    </div>
+    <div class="cr-cell cr-winner">
+      <div class="cr-value" style="color:var(--green)">67.3% 🏆</div>
+      <div class="cr-bar"><div class="cr-bar-fill" style="width:67.3%;background:var(--green)"></div></div>
+      <div class="cr-note">Own manufacturing — lenses cost ₹80 to make, sell for ₹600–2,000. Structural advantage.</div>
+    </div>
+  </div>
+
+  <div class="compare-row-wrap">
+    <div class="cr-label">EBITDA Margin</div>
+    <div class="cr-cell">
+      <div class="cr-value" style="color:var(--accent)">5.0%</div>
+      <div class="cr-bar"><div class="cr-bar-fill" style="width:5%;background:var(--accent)"></div></div>
+      <div class="cr-note">Lean operations but thin margin due to low gross margin base.</div>
+    </div>
+    <div class="cr-cell cr-winner">
+      <div class="cr-value" style="color:var(--green)">10.1% 🏆</div>
+      <div class="cr-bar"><div class="cr-bar-fill" style="width:10.1%;background:var(--green)"></div></div>
+      <div class="cr-note">Better EBITDA despite higher opex — strong GM gives more room to operate.</div>
+    </div>
+  </div>
+
+  <div class="compare-row-wrap">
+    <div class="cr-label">PAT Margin</div>
+    <div class="cr-cell cr-winner">
+      <div class="cr-value" style="color:var(--green)">+0.6% 🏆</div>
+      <div class="cr-bar"><div class="cr-bar-fill" style="width:0.6%;background:var(--green)"></div></div>
+      <div class="cr-note">Profitable — listed company, clean balance sheet, low debt.</div>
+    </div>
+    <div class="cr-cell">
+      <div class="cr-value" style="color:var(--accent3)">-0.2%</div>
+      <div class="cr-bar"><div class="cr-bar-fill" style="width:0.2%;background:var(--accent3)"></div></div>
+      <div class="cr-note">Near breakeven — EBITDA is strong but ₹672 Cr depreciation drags PAT negative. FY25: turned profitable at +₹297 Cr.</div>
+    </div>
+  </div>
+
+  <!-- COST STRUCTURE -->
+  <div class="compare-section-title" style="margin-top:2px">
+    <div class="cst-label">💰 COST STRUCTURE (AS % OF REVENUE)</div>
+  </div>
+
+  <div class="compare-row-wrap">
+    <div class="cr-label">COGS / Materials</div>
+    <div class="cr-cell">
+      <div class="cr-value" style="color:var(--accent3)">71.9%</div>
+      <div class="cr-bar"><div class="cr-bar-fill" style="width:71.9%;background:var(--accent3)"></div></div>
+      <div class="cr-note">Reseller buying at wholesale. Improving as own-brand share grows.</div>
+    </div>
+    <div class="cr-cell cr-winner">
+      <div class="cr-value" style="color:var(--green)">32.7% 🏆</div>
+      <div class="cr-bar"><div class="cr-bar-fill" style="width:32.7%;background:var(--green)"></div></div>
+      <div class="cr-note">Own manufacturing keeps material costs low. This is the core moat.</div>
+    </div>
+  </div>
+
+  <div class="compare-row-wrap">
+    <div class="cr-label">Employee Costs</div>
+    <div class="cr-cell cr-winner">
+      <div class="cr-value" style="color:var(--green)">8.9% 🏆</div>
+      <div class="cr-bar"><div class="cr-bar-fill" style="width:8.9%;background:var(--green)"></div></div>
+      <div class="cr-note">Leaner team relative to revenue. Corporate + 12k store staff.</div>
+    </div>
+    <div class="cr-cell">
+      <div class="cr-value" style="color:var(--accent)">20.0%</div>
+      <div class="cr-bar"><div class="cr-bar-fill" style="width:20%;background:var(--accent)"></div></div>
+      <div class="cr-note">Higher because of optometrists and technicians at every store. Service-heavy model.</div>
+    </div>
+  </div>
+
+  <div class="compare-row-wrap">
+    <div class="cr-label">Marketing & Distribution</div>
+    <div class="cr-cell cr-winner">
+      <div class="cr-value" style="color:var(--green)">8.0% 🏆</div>
+      <div class="cr-bar"><div class="cr-bar-fill" style="width:8%;background:var(--green)"></div></div>
+      <div class="cr-note">High-quality brand content, influencer-led, strong organic. 75% repeat rate.</div>
+    </div>
+    <div class="cr-cell">
+      <div class="cr-value" style="color:var(--accent)">13.0%</div>
+      <div class="cr-bar"><div class="cr-bar-fill" style="width:13%;background:var(--accent)"></div></div>
+      <div class="cr-note">Includes franchise commissions which are structural, not avoidable.</div>
+    </div>
+  </div>
+
+  <div class="compare-row-wrap">
+    <div class="cr-label">Admin & Overhead</div>
+    <div class="cr-cell cr-winner">
+      <div class="cr-value" style="color:var(--green)">5.0% 🏆</div>
+      <div class="cr-bar"><div class="cr-bar-fill" style="width:5%;background:var(--green)"></div></div>
+      <div class="cr-note">200+ stores but smaller footprint per store vs Lenskart.</div>
+    </div>
+    <div class="cr-cell">
+      <div class="cr-value" style="color:var(--accent)">20.1%</div>
+      <div class="cr-bar"><div class="cr-bar-fill" style="width:20.1%;background:var(--accent)"></div></div>
+      <div class="cr-note">2,500 global store leases + massive depreciation on fit-outs. Will improve as stores mature.</div>
+    </div>
+  </div>
+
+  <!-- BUSINESS MODEL -->
+  <div class="compare-section-title" style="margin-top:2px">
+    <div class="cst-label">🏭 BUSINESS MODEL COMPARISON</div>
+  </div>
+
+  <div class="compare-row-wrap">
+    <div class="cr-label">Supply Chain</div>
+    <div class="cr-cell">
+      <div class="cr-value" style="color:var(--muted);font-size:14px">Reseller</div>
+      <div class="cr-note">Buys from brands, marks up, sells. No manufacturing. High working capital. Trust = authenticity guarantee.</div>
+    </div>
+    <div class="cr-cell cr-winner">
+      <div class="cr-value" style="color:var(--green);font-size:14px">Vertical Manufacturer 🏆</div>
+      <div class="cr-note">Makes own lenses. Controls quality, cost, and margins end-to-end. Rare and hard to replicate.</div>
+    </div>
+  </div>
+
+  <div class="compare-row-wrap">
+    <div class="cr-label">Revenue Model</div>
+    <div class="cr-cell">
+      <div class="cr-value" style="color:var(--muted);font-size:14px">Inventory + Marketplace + Ads</div>
+      <div class="cr-note">Diversified streams. Ads/marketplace are high-margin but inventory sales dominate.</div>
+    </div>
+    <div class="cr-cell">
+      <div class="cr-value" style="color:var(--muted);font-size:14px">Product Sales + Subscription</div>
+      <div class="cr-note">95% product sales. Lenskart Gold subscription (5M+ members) is an emerging recurring stream.</div>
+    </div>
+  </div>
+
+  <div class="compare-row-wrap">
+    <div class="cr-label">International Revenue</div>
+    <div class="cr-cell cr-winner">
+      <div class="cr-value" style="color:var(--green);font-size:14px">India-dominant</div>
+      <div class="cr-note">Near 100% India revenue. International expansion (GCC) just beginning.</div>
+    </div>
+    <div class="cr-cell">
+      <div class="cr-value" style="color:var(--accent);font-size:14px">42% International 🌏</div>
+      <div class="cr-note">Japan, Singapore, Thailand, Taiwan. International has higher ASP and potentially better margins.</div>
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="chart-section">
+    <div class="sec-title">Visual Comparison</div>
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="chart-title">P&L Waterfall Comparison</div>
+        <div class="chart-sub">Key margins side by side</div>
+        <div class="chart-wrap"><canvas id="plChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Cost Structure — Where the Money Goes</div>
+        <div class="chart-sub">% of revenue by cost head</div>
+        <div class="chart-wrap"><canvas id="costChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAKEAWAYS -->
+  <div class="takeaways">
+    <div class="sec-title">Key Takeaways</div>
+    <div class="ta-grid">
+      <div class="ta-card">
+        <div class="ta-company">Nykaa</div>
+        <div class="ta-title">The platform play with an own-brand ace up its sleeve</div>
+        <div class="ta-points">
+          <div class="ta-point"><span class="ta-bullet">→</span><span>Currently a low-margin reseller business — but own brands (Dot & Key, Kay Beauty) at 50–60% margins could change everything</span></div>
+          <div class="ta-point"><span class="ta-bullet">→</span><span>Marketing efficiency is the real edge — 75% repeat rate and brand content keeps CAC low vs pure performance-marketing competitors</span></div>
+          <div class="ta-point"><span class="ta-bullet">→</span><span>B2B Superstore growing 84% YoY — a completely separate revenue stream that analysts are undervaluing</span></div>
+        </div>
+      </div>
+      <div class="ta-card">
+        <div class="ta-company">Lenskart</div>
+        <div class="ta-title">A manufacturing business disguised as a D2C retailer</div>
+        <div class="ta-points">
+          <div class="ta-point"><span class="ta-bullet">→</span><span>67% gross margin from own lens manufacturing — a moat built over 10+ years that competitors can't quickly replicate</span></div>
+          <div class="ta-point"><span class="ta-bullet">→</span><span>International (42% revenue) is the margin expansion story — Japan ASP is 5–10x India's ASP with same manufacturing cost</span></div>
+          <div class="ta-point"><span class="ta-bullet">→</span><span>Depreciation cliff was always going to reverse — FY25 proved it with ₹297 Cr PAT. The 'loss-making' narrative was misleading</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-logo">Growth<span>Rx</span></div>
+  <div class="footer-text">Industry intelligence for business minds • Not financial advice • © 2026</div>
+</footer>
+
+<script>
+// P&L comparison chart
+new Chart(document.getElementById('plChart').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: ['Gross Margin', 'EBITDA', 'PAT'],
+    datasets: [
+      { label: 'Nykaa', data: [28.1, 5.0, 0.6], backgroundColor: 'rgba(240,224,64,0.8)', borderRadius: 4, borderWidth: 0 },
+      { label: 'Lenskart', data: [67.3, 10.1, -0.2], backgroundColor: 'rgba(64,224,152,0.8)', borderRadius: 4, borderWidth: 0 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { labels: { color: '#888', font: { size: 11 }, boxWidth: 10 } } },
+    scales: {
+      x: { grid: { color: '#1f1f1f' }, ticks: { color: '#888', font: { size: 11 } } },
+      y: { grid: { color: '#1f1f1f' }, ticks: { color: '#888', font: { size: 10 }, callback: v => v + '%' } }
+    }
+  }
+});
+
+// Cost structure chart
+new Chart(document.getElementById('costChart').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: ['COGS', 'Employee', 'Marketing', 'Technology', 'Admin', 'Finance'],
+    datasets: [
+      { label: 'Nykaa', data: [71.9, 8.9, 8.0, 3.0, 5.0, 1.5], backgroundColor: 'rgba(240,224,64,0.7)', borderRadius: 3, borderWidth: 0 },
+      { label: 'Lenskart', data: [32.7, 20.0, 13.0, 4.0, 20.1, 4.0], backgroundColor: 'rgba(64,224,152,0.7)', borderRadius: 3, borderWidth: 0 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { labels: { color: '#888', font: { size: 11 }, boxWidth: 10 } } },
+    scales: {
+      x: { grid: { color: '#1f1f1f' }, ticks: { color: '#888', font: { size: 9 } } },
+      y: { grid: { color: '#1f1f1f' }, ticks: { color: '#888', font: { size: 10 }, callback: v => v + '%' } }
+    }
+  }
+});
+</script>
+</body>
+</html>

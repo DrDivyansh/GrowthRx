@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GrowthRx — Industry Intelligence for Business Minds</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+.hero { padding:80px 48px 64px; border-bottom:1px solid var(--border); position:relative; overflow:hidden; }
+.hero::before { content:''; position:absolute; top:-100px; right:-100px; width:500px; height:500px; border-radius:50%; background:radial-gradient(circle, rgba(240,224,64,0.05) 0%, transparent 70%); pointer-events:none; }
+.hero-eyebrow { display:inline-flex; align-items:center; gap:8px; background:var(--surface2); border:1px solid var(--border2); border-radius:100px; padding:5px 14px; font-size:11px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; margin-bottom:28px; font-family:'Geist Mono',monospace; }
+.hero-eyebrow .dot { width:6px; height:6px; border-radius:50%; background:var(--accent); animation:pulse 1.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+.hero h1 { font-family:'Fraunces',serif; font-size:68px; font-weight:900; line-height:1.0; letter-spacing:-2.5px; max-width:780px; margin-bottom:24px; }
+.hero h1 em { font-style:italic; color:var(--accent); }
+.hero h1 .dim { color:var(--muted); }
+.hero-sub { color:var(--muted); font-size:15px; line-height:1.75; max-width:500px; margin-bottom:48px; }
+.stat-row { display:flex; gap:0; border:1px solid var(--border); border-radius:12px; overflow:hidden; width:fit-content; }
+.stat-item { padding:14px 28px; border-right:1px solid var(--border); }
+.stat-item:last-child { border-right:none; }
+.stat-num { font-family:'Fraunces',serif; font-size:26px; font-weight:900; color:var(--accent); }
+.stat-label { font-size:11px; color:var(--muted); margin-top:2px; }
+
+/* INDUSTRY SECTION */
+.section { padding:60px 48px; }
+.section-header { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:36px; }
+.section-title { font-family:'Fraunces',serif; font-size:32px; font-weight:700; }
+.section-sub { color:var(--muted); font-size:13px; }
+
+.industry-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:32px; margin-bottom:48px; }
+.industry-header { display:flex; align-items:center; gap:16px; margin-bottom:12px; }
+.industry-icon { font-size:32px; }
+.industry-name { font-family:'Fraunces',serif; font-size:28px; font-weight:700; }
+.industry-desc { color:var(--muted); font-size:14px; margin-bottom:8px; }
+.industry-insight-box { background:rgba(240,224,64,0.05); border:1px solid rgba(240,224,64,0.15); border-radius:8px; padding:12px 16px; font-size:13px; color:#ccc; margin-bottom:28px; line-height:1.6; }
+.industry-insight-box strong { color:var(--accent); }
+
+.companies-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.company-card { background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:24px; cursor:pointer; transition:all 0.2s; text-decoration:none; color:var(--text); display:block; }
+.company-card:hover { border-color:var(--accent); transform:translateY(-2px); }
+.cc-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
+.cc-name { font-size:20px; font-weight:600; margin-bottom:3px; }
+.cc-sector { font-size:12px; color:var(--muted); }
+.cc-revenue { font-family:'Fraunces',serif; font-size:24px; font-weight:700; color:var(--accent); text-align:right; }
+.cc-rev-label { font-size:10px; color:var(--muted); text-align:right; font-family:'Geist Mono',monospace; }
+.cc-tagline { font-size:13px; color:var(--muted); line-height:1.6; margin-bottom:16px; }
+.cc-metrics { display:flex; gap:16px; padding-top:16px; border-top:1px solid var(--border); }
+.cc-metric-val { font-family:'Geist Mono',monospace; font-size:14px; font-weight:500; }
+.cc-metric-label { font-size:10px; color:var(--muted); margin-top:2px; letter-spacing:0.5px; }
+.cc-cta { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--accent); letter-spacing:1px; text-transform:uppercase; margin-top:14px; font-family:'Geist Mono',monospace; }
+
+/* FEATURED INSIGHT */
+.featured-insight { background:linear-gradient(135deg, var(--surface2), var(--surface)); border:1px solid var(--border2); border-radius:16px; padding:40px; margin-bottom:48px; display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:center; }
+.fi-label { font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--accent); margin-bottom:12px; font-family:'Geist Mono',monospace; }
+.fi-title { font-family:'Fraunces',serif; font-size:32px; font-weight:700; line-height:1.2; margin-bottom:16px; }
+.fi-body { color:var(--muted); font-size:14px; line-height:1.7; }
+.fi-chart { position:relative; height:200px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">Growth<span>Rx</span></a>
+  <div class="nav-pills">
+    <a href="index.html" class="nav-pill active">Industries</a>
+    <a href="compare.html" class="nav-pill">Compare</a>
+    <a href="about.html" class="nav-pill">About</a>
+  </div>
+  <a href="#" class="nav-cta">Get Alerts</a>
+</nav>
+
+<section class="hero fade-up">
+  <div class="hero-eyebrow"><span class="dot"></span> <span>New</span> Lenskart & Nykaa deep dives live</div>
+  <h1>Understand <em>Industries</em><br>Like an <span class="dim">Insider.</span></h1>
+  <p class="hero-sub">We break down how industries actually work — business models, cost structures, P&L drivers, and insights that go beyond the obvious. Built for MBA students, founders & analysts.</p>
+  <div class="stat-row">
+    <div class="stat-item"><div class="stat-num">2</div><div class="stat-label">Industries Live</div></div>
+    <div class="stat-item"><div class="stat-num">2</div><div class="stat-label">Companies Analyzed</div></div>
+    <div class="stat-item"><div class="stat-num">6</div><div class="stat-label">Cost Heads Tracked</div></div>
+    <div class="stat-item"><div class="stat-num">Free</div><div class="stat-label">Always</div></div>
+  </div>
+</section>
+
+<section class="section">
+
+  <!-- FEATURED INSIGHT -->
+  <div class="featured-insight">
+    <div>
+      <div class="fi-label">Insight of the Week</div>
+      <div class="fi-title">Why Lenskart has a 67% gross margin while Nykaa has 28% — in the same "retail" category</div>
+      <div class="fi-body">Both are D2C retail companies selling consumer products. But their cost structures are completely different because of one decision: Lenskart manufactures its own lenses. Own manufacturing = 60–70% margins. Reselling others' products = 15–28% margins. Same sector, completely different P&L.</div>
+    </div>
+    <div>
+      <div class="fi-chart"><canvas id="compareChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- INDUSTRY CARDS -->
+  <div class="section-header">
+    <div class="section-title">Industries</div>
+    <div class="section-sub">More sectors coming soon</div>
+  </div>
+
+  <div class="industry-card">
+    <div class="industry-header">
+      <div class="industry-icon">🛍️</div>
+      <div>
+        <div class="industry-name">Retail & D2C</div>
+        <div class="industry-desc">India's direct-to-consumer and omnichannel retail sector — from beauty to eyewear</div>
+      </div>
+    </div>
+    <div class="industry-insight-box">
+      💡 <strong>Key Industry Insight:</strong> India's D2C market is expected to hit $100B by 2025. The dominant playbook: build brand awareness online → expand to offline physical stores → own the supply chain for margin control. But the biggest differentiator isn't marketing — it's <strong>manufacturing ownership</strong>.
+    </div>
+    <div class="companies-grid">
+      <a href="company.html?id=nykaa" class="company-card">
+        <div class="cc-top">
+          <div>
+            <div class="cc-name">Nykaa</div>
+            <div class="cc-sector">Beauty & Personal Care</div>
+          </div>
+          <div>
+            <div class="cc-revenue">₹6,386 Cr</div>
+            <div class="cc-rev-label">FY24 REVENUE</div>
+          </div>
+        </div>
+        <div class="cc-tagline">India's beauty marketplace that proved luxury retail can work online — then doubled down on physical stores. First woman-led unicorn to go public.</div>
+        <div class="cc-metrics">
+          <div><div class="cc-metric-val" style="color:var(--green)">28.1%</div><div class="cc-metric-label">Gross Margin</div></div>
+          <div><div class="cc-metric-val" style="color:var(--accent)">5.0%</div><div class="cc-metric-label">EBITDA</div></div>
+          <div><div class="cc-metric-val" style="color:var(--green)">0.6%</div><div class="cc-metric-label">PAT Margin</div></div>
+          <div><span class="tag-profit">PROFIT</span></div>
+        </div>
+        <div class="cc-cta">Read Full Analysis →</div>
+      </a>
+      <a href="company.html?id=lenskart" class="company-card">
+        <div class="cc-top">
+          <div>
+            <div class="cc-name">Lenskart</div>
+            <div class="cc-sector">Eyewear & Vision Care</div>
+          </div>
+          <div>
+            <div class="cc-revenue">₹5,427 Cr</div>
+            <div class="cc-rev-label">FY24 REVENUE</div>
+          </div>
+        </div>
+        <div class="cc-tagline">Disrupted India's fragmented eyewear market by manufacturing its own lenses. One of India's few consumer internet companies with real international traction (42% overseas revenue).</div>
+        <div class="cc-metrics">
+          <div><div class="cc-metric-val" style="color:var(--green)">67.3%</div><div class="cc-metric-label">Gross Margin</div></div>
+          <div><div class="cc-metric-val" style="color:var(--accent)">10.1%</div><div class="cc-metric-label">EBITDA</div></div>
+          <div><div class="cc-metric-val" style="color:var(--accent3)">-0.2%</div><div class="cc-metric-label">PAT Margin</div></div>
+          <div><span class="tag-neutral">NEAR BEP</span></div>
+        </div>
+        <div class="cc-cta">Read Full Analysis →</div>
+      </a>
+    </div>
+  </div>
+
+  <!-- COMING SOON -->
+  <div class="section-header" style="margin-top:0">
+    <div class="section-title" style="color:var(--muted)">Coming Soon</div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+    <div style="background:var(--surface);border:1px dashed var(--border2);border-radius:12px;padding:24px;opacity:0.5;text-align:center">
+      <div style="font-size:24px;margin-bottom:8px">⚡</div>
+      <div style="font-size:14px;font-weight:500">EV & CleanTech</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">Ather, Ola, Tata EV</div>
+    </div>
+    <div style="background:var(--surface);border:1px dashed var(--border2);border-radius:12px;padding:24px;opacity:0.5;text-align:center">
+      <div style="font-size:24px;margin-bottom:8px">🏥</div>
+      <div style="font-size:14px;font-weight:500">Healthcare</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">PharmEasy, Apollo 24/7</div>
+    </div>
+    <div style="background:var(--surface);border:1px dashed var(--border2);border-radius:12px;padding:24px;opacity:0.5;text-align:center">
+      <div style="font-size:24px;margin-bottom:8px">💻</div>
+      <div style="font-size:14px;font-weight:500">Tech & SaaS</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">Freshworks, Zoho</div>
+    </div>
+    <div style="background:var(--surface);border:1px dashed var(--border2);border-radius:12px;padding:24px;opacity:0.5;text-align:center">
+      <div style="font-size:24px;margin-bottom:8px">🏦</div>
+      <div style="font-size:14px;font-weight:500">Finance & NBFC</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">Bajaj Finance, Jio Fin</div>
+    </div>
+  </div>
+
+</section>
+
+<footer>
+  <div class="footer-logo">Growth<span>Rx</span></div>
+  <div class="footer-text">Industry intelligence for business minds • Not financial advice • © 2026</div>
+</footer>
+
+<script>
+const ctx = document.getElementById('compareChart').getContext('2d');
+new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: ['Gross Margin', 'EBITDA', 'Marketing %', 'Employee %'],
+    datasets: [
+      {
+        label: 'Nykaa',
+        data: [28.1, 5.0, 8.0, 8.9],
+        backgroundColor: 'rgba(240,224,64,0.8)',
+        borderRadius: 4, borderWidth: 0
+      },
+      {
+        label: 'Lenskart',
+        data: [67.3, 10.1, 13.0, 20.0],
+        backgroundColor: 'rgba(64,224,152,0.8)',
+        borderRadius: 4, borderWidth: 0
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { labels: { color: '#888', font: { size: 11 }, boxWidth: 10 } } },
+    scales: {
+      x: { grid: { color: '#1f1f1f' }, ticks: { color: '#888', font: { size: 10 } } },
+      y: { grid: { color: '#1f1f1f' }, ticks: { color: '#888', font: { size: 10 }, callback: v => v + '%' } }
+    }
+  }
+});
+</script>
+</body>
+</html>
